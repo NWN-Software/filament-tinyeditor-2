@@ -17,16 +17,19 @@
         [wire\:sortable] .tox-tinymce {
             z-index: 1 !important;
         }
+
         .fi-fo-repeater .tox-tinymce-aux,
         .fi-fo-builder .tox-tinymce-aux,
         [wire\:sortable] .tox-tinymce-aux {
             z-index: 9999 !important;
         }
+
         .fi-fo-repeater .tox .tox-toolbar,
         .fi-fo-builder .tox .tox-toolbar,
         [wire\:sortable] .tox .tox-toolbar {
             position: relative !important;
         }
+
         .fi-fo-repeater .tox .tox-editor-header,
         .fi-fo-builder .tox .tox-editor-header,
         [wire\:sortable] .tox .tox-editor-header {
@@ -39,22 +42,13 @@
         $textareaID = 'tiny-editor-' . str_replace(['.', '#', '$'], '-', $getId()) . '-' . rand();
     @endphp
 
-    <div
-        x-data="{ isModalOpen: false }"
-        x-init="$el.closest('.fi-modal')?.addEventListener('open-tinyeditor-modal', () => { isModalOpen = true; });
-                $el.closest('.fi-modal')?.addEventListener('close-tinyeditor-modal', () => { isModalOpen = false; });
-                $watch('isModalOpen', value => { $dispatch('modal-visibility-changed', { isOpen: value }); });"
-    >
-        <x-filament::input.wrapper
-            x-cloak
-            :valid="!$errors->has($statePath)"
-            :attributes="\Filament\Support\prepare_inherited_attributes($extraAttributeBag)"
-        >
-            <div
-                x-load
+    <div x-data="{ isModalOpen: false }" x-init="$el.closest('.fi-modal')?.addEventListener('open-tinyeditor-modal', () => { isModalOpen = true; });
+    $el.closest('.fi-modal')?.addEventListener('close-tinyeditor-modal', () => { isModalOpen = false; });
+    $watch('isModalOpen', value => { $dispatch('modal-visibility-changed', { isOpen: value }); });">
+        <x-filament::input.wrapper x-cloak :valid="!$errors->has($statePath)" :attributes="\Filament\Support\prepare_inherited_attributes($extraAttributeBag)">
+            <div x-load
                 x-load-src="{{ \Filament\Support\Facades\FilamentAsset::getAlpineComponentSrc('tinyeditor', 'amidesfahani/filament-tinyeditor') }}"
-                x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('tiny-css', package: 'amidesfahani/filament-tinyeditor'))]"
-                x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc($getLanguageId(), package: 'amidesfahani/filament-tinyeditor'))]"
+                x-load-css="[@js(\Filament\Support\Facades\FilamentAsset::getStyleHref('tiny-css', package: 'amidesfahani/filament-tinyeditor'))]" x-load-js="[@js(\Filament\Support\Facades\FilamentAsset::getScriptSrc($getLanguageId(), package: 'amidesfahani/filament-tinyeditor'))]"
                 x-data="tinyeditor({
                     state: $wire.{{ $applyStateBindingModifiers("\$entangle('{$statePath}')", isOptimisticallyLive: false) }},
                     statePath: @js($statePath),
@@ -68,6 +62,8 @@
                     language: '{{ $getInterfaceLanguage() }}',
                     language_url: '{{ $getLanguageURL($getInterfaceLanguage()) }}',
                     directionality: '{{ $getDirection() }}',
+                    customButtons: @js($getCustomButtons()),
+                    customButtonsLabel: '{{ $getCustomButtonsLabel() }}',
                     @if ($getHeight()) height: @js($getHeight()), @endif
                     @if ($getMaxHeight()) max_height: @js($getMaxHeight()), @endif
                     @if ($getMinHeight()) min_height: @js($getMinHeight()), @endif
@@ -121,16 +117,15 @@
                             $wire.set('{{ $statePath }}', editor.getContent(), false);
                         })
                     },
-                })"
-                wire:ignore
-                wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled])), 0, 64) }}"
-            >
+                })" wire:ignore
+                wire:key="{{ $livewireKey }}.{{ substr(md5(serialize([$isDisabled])), 0, 64) }}">
                 @if ($isDisabled)
                     <div x-html="state" @style(['max-height: ' . $getPreviewMaxHeight() . 'px' => $getPreviewMaxHeight() > 0, 'min-height: ' . $getPreviewMinHeight() . 'px' => $getPreviewMinHeight() > 0])
                         class="prose dark:prose-invert block w-full max-w-none overflow-y-auto rounded-lg border border-gray-300 bg-white p-3 opacity-70 shadow-sm transition duration-75 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                     </div>
                 @else
-                    <input id="{{ $textareaID }}" type="hidden" x-ref="tinymce" placeholder="{{ $getPlaceholder() }}">
+                    <input id="{{ $textareaID }}" type="hidden" x-ref="tinymce"
+                        placeholder="{{ $getPlaceholder() }}">
                 @endif
             </div>
         </x-filament::input.wrapper>

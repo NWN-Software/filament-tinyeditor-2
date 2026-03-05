@@ -41,6 +41,8 @@ export default function tinyeditor({
 	language = "en",
 	language_url = null,
 	directionality = "ltr",
+	customButtons = null,
+	customButtonsLabel = 'Custom buttons',
 	height = null,
 	max_height = 0,
 	min_height = 100,
@@ -292,6 +294,8 @@ export default function tinyeditor({
 				language: language,
 				language_url: language_url,
 				directionality: directionality,
+				customButtons: customButtons,
+				customButtonsLabel: 'Custom Buttons',
 				statusbar: false,
 				promotion: false,
 				height: height,
@@ -414,6 +418,23 @@ export default function tinyeditor({
 					if (typeof setup === "function") {
 						setup(editor);
 					}
+
+					if (customButtons) {
+						editor.ui.registry.addSplitButton('customButtons', {
+							text: customButtonsLabel,
+							onAction: () => editor.insertContent(''),
+							onItemAction: (buttonApi, value) => editor.insertContent(value),
+							fetch: (callback) => {
+								const items = Object.entries(customButtons).map(([text, value]) => ({
+									type: 'choiceitem',
+									text: text,
+									value: value
+								}));
+								callback(items);
+							}
+						});
+					}
+
 				},
 
 				removeImagesEventCallback: (imageSrc) => {
@@ -453,10 +474,16 @@ export default function tinyeditor({
 							})
 						);
 
+						const fileInfo = blobInfo.blob();
+
+						if (!fileInfo.name) {
+							fileInfo.name = 'tempFile';
+						}
+
 						// Upload file using Livewire
 						this.$wire.upload(
 							`componentFileAttachments.${statePath}.${fileKey}`,
-							blobInfo.blob(),
+							fileInfo,
 							() => {
 
 								this.getFileAttachmentUrl(fileKey)
