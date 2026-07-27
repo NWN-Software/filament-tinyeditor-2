@@ -509,18 +509,18 @@ export default function tinyeditor({
 										// Dispatch form processing finished event
 										dispatchFormEvent(this.editor(), 'form-processing-finished');
 										this.isUploadingFile = false;
+
+										// Tag the placeholder <img> (still showing the blob: URL at this point)
+										// before resolving, since TinyMCE swaps its src attribute in place rather
+										// than firing a fresh SetContent event we could otherwise listen for.
+										const placeholderImg = this.editor().getBody().querySelector(
+											'img[src="' + blobInfo.blobUri() + '"]'
+										);
+										if (placeholderImg) {
+											placeholderImg.setAttribute('data-id', fileKey);
+										}
+
 										success(tempUrl);
-
-										const editor = this.editor();
-
-										editor.once('SetContent', ({ content, format, paster, selection }) => {
-											const imgs = editor.getBody().querySelectorAll('img:not([data-id])');
-											if (imgs.length > 0) {
-												// Tag the last inserted <img>
-												const img = imgs[imgs.length - 1];
-												img.setAttribute('data-id', fileKey);
-											}
-										});
 									})
 									.catch((error) => {
 										console.error('Upload error:', error);
