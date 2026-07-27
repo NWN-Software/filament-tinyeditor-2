@@ -161,7 +161,7 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
 
                 // Check if the src is a temporary URL
                 if ($tempDisk->exists($tempPath)) {
-                    $attachment = $this->getUploadedFileAttachment($fileKey);
+                    $attachment = $component->getUploadedFileAttachment($fileKey);
 
                     if ($attachment) {
                         $nodeAttrsId = $component->saveUploadedFileAttachment($attachment);
@@ -908,7 +908,7 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
 
     public function getFileAttachmentsVisibility(): ?string
     {
-        return $this->fileAttachmentsVisibility ?? $this->getFileAttachmentProvider()?->getDefaultFileAttachmentVisibility();
+        return $this->fileAttachmentsVisibility ?? $this->getFileAttachmentProvider()?->getDefaultFileAttachmentVisibility() ?? 'public';
     }
 
     public function setCustomButtons(?array $customButtons): static
@@ -935,3 +935,5 @@ class TinyEditor extends Field implements Contracts\CanBeLengthConstrained
         return $this->customButtonsLabel ?? __('actions.import_data');
     }
 }
+
+
